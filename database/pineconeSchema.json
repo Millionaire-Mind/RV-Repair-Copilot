@@ -1,0 +1,202 @@
+{
+  "index_name": "rv-repair-copilot",
+  "dimension": 1536,
+  "metric": "cosine",
+  "pod_type": "p1.x1",
+  "pods": 1,
+  "replicas": 1,
+  "metadata_config": {
+    "indexed": [
+      "brand",
+      "component",
+      "manualType",
+      "year",
+      "model",
+      "source",
+      "chunkIndex",
+      "totalChunks",
+      "fileHash",
+      "ingestionDate",
+      "lastUpdated",
+      "confidence",
+      "language",
+      "category",
+      "difficulty",
+      "estimatedTime",
+      "toolsRequired",
+      "safetyLevel",
+      "oemPartNumbers",
+      "warrantyInfo"
+    ]
+  },
+  "description": "Vector index for RV repair knowledge base with semantic search capabilities",
+  "tags": {
+    "project": "rv-repair-copilot",
+    "environment": "production",
+    "version": "1.0.0"
+  },
+  "vector_metadata": {
+    "brand": {
+      "type": "string",
+      "description": "RV manufacturer brand name",
+      "examples": ["Airstream", "Winnebago", "Fleetwood", "Thor", "Forest River"],
+      "required": true,
+      "indexed": true
+    },
+    "component": {
+      "type": "string",
+      "description": "System or component category",
+      "examples": ["Electrical", "Plumbing", "HVAC", "Engine", "Chassis", "Appliances"],
+      "required": true,
+      "indexed": true
+    },
+    "manualType": {
+      "type": "string",
+      "description": "Type of technical documentation",
+      "examples": ["service", "owner", "parts", "troubleshooting", "wiring"],
+      "required": true,
+      "indexed": true,
+      "default": "service"
+    },
+    "year": {
+      "type": "integer",
+      "description": "Model year or document year",
+      "min": 1980,
+      "max": 2030,
+      "indexed": true
+    },
+    "model": {
+      "type": "string",
+      "description": "Specific RV model or series",
+      "examples": ["Class A", "Class B", "Class C", "Travel Trailer", "Fifth Wheel"],
+      "indexed": true
+    },
+    "source": {
+      "type": "string",
+      "description": "Source document or URL",
+      "required": true,
+      "indexed": true
+    },
+    "chunkIndex": {
+      "type": "integer",
+      "description": "Index of this chunk within the source document",
+      "min": 0,
+      "required": true,
+      "indexed": true
+    },
+    "totalChunks": {
+      "type": "integer",
+      "description": "Total number of chunks in the source document",
+      "min": 1,
+      "required": true,
+      "indexed": true
+    },
+    "fileHash": {
+      "type": "string",
+      "description": "SHA-256 hash of the source file for deduplication",
+      "required": true,
+      "indexed": true
+    },
+    "ingestionDate": {
+      "type": "string",
+      "description": "ISO 8601 timestamp when the chunk was ingested",
+      "format": "date-time",
+      "required": true,
+      "indexed": true
+    },
+    "lastUpdated": {
+      "type": "string",
+      "description": "ISO 8601 timestamp when the chunk was last updated",
+      "format": "date-time",
+      "indexed": true
+    },
+    "confidence": {
+      "type": "number",
+      "description": "Confidence score for the chunk quality (0.0 to 1.0)",
+      "min": 0.0,
+      "max": 1.0,
+      "indexed": true
+    },
+    "language": {
+      "type": "string",
+      "description": "Language of the content",
+      "examples": ["en", "es", "fr", "de"],
+      "default": "en",
+      "indexed": true
+    },
+    "category": {
+      "type": "string",
+      "description": "Repair category or topic",
+      "examples": ["Maintenance", "Repair", "Installation", "Troubleshooting", "Safety"],
+      "indexed": true
+    },
+    "difficulty": {
+      "type": "string",
+      "description": "Difficulty level of the repair",
+      "examples": ["Beginner", "Intermediate", "Advanced", "Professional"],
+      "indexed": true
+    },
+    "estimatedTime": {
+      "type": "string",
+      "description": "Estimated time to complete the repair",
+      "examples": ["30 minutes", "2 hours", "1 day", "Multiple days"],
+      "indexed": true
+    },
+    "toolsRequired": {
+      "type": "array",
+      "description": "List of tools required for the repair",
+      "items": {
+        "type": "string"
+      },
+      "indexed": true
+    },
+    "safetyLevel": {
+      "type": "string",
+      "description": "Safety level required for the repair",
+      "examples": ["Low", "Medium", "High", "Critical"],
+      "indexed": true
+    },
+    "oemPartNumbers": {
+      "type": "array",
+      "description": "OEM part numbers mentioned in the chunk",
+      "items": {
+        "type": "string"
+      },
+      "indexed": true
+    },
+    "warrantyInfo": {
+      "type": "string",
+      "description": "Warranty information or requirements",
+      "indexed": true
+    }
+  },
+  "search_config": {
+    "top_k": 5,
+    "include_metadata": true,
+    "include_values": false,
+    "filter_defaults": {
+      "manualType": "service",
+      "language": "en"
+    }
+  },
+  "indexing_config": {
+    "replace_deleted": true,
+    "metadata_config": {
+      "indexed": true
+    }
+  },
+  "optimization_config": {
+    "auto_refresh": true,
+    "refresh_interval": 3600
+  },
+  "backup_config": {
+    "enabled": true,
+    "frequency": "daily",
+    "retention_days": 30
+  },
+  "monitoring_config": {
+    "metrics_enabled": true,
+    "logging_enabled": true,
+    "alerting_enabled": true
+  }
+}

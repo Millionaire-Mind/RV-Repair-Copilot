@@ -1,20 +1,22 @@
+import 'dotenv/config';  // Load .env variables immediately
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
-import dotenv from 'dotenv';
 import { logger } from './utils/logger';
 import queryRoutes from './routes/query';
 import ingestRoutes from './routes/ingest';
 import healthRoutes from './routes/health';
 
-// Load environment variables
-dotenv.config();
+// Environment variable checks
+console.log("OPENAI_API_KEY loaded:", !!process.env.OPENAI_API_KEY);
+console.log("PINECONE_API_KEY loaded:", !!process.env.PINECONE_API_KEY);
+console.log("PINECONE_ENVIRONMENT loaded:", !!process.env.PINECONE_ENVIRONMENT);
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
 
 // Security middleware
 app.use(helmet({
@@ -31,14 +33,14 @@ app.use(helmet({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 100,
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
 });
 app.use('/api/', limiter);
 
-// Body parsing middleware
+// Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -53,11 +55,9 @@ app.use(cors({
 // Compression middleware
 app.use(compression());
 
-// Logging middleware
+// Logging
 app.use(morgan('combined', {
-  stream: {
-    write: (message: string) => logger.info(message.trim()),
-  },
+  stream: { write: (message: string) => logger.info(message.trim()) },
 }));
 
 // Health check endpoint
@@ -95,7 +95,6 @@ app.use('*', (req, res) => {
 // Global error handler
 app.use((error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   logger.error('Unhandled error:', error);
-  
   res.status(500).json({
     error: 'Internal server error',
     message: process.env.NODE_ENV === 'production' ? 'Something went wrong' : error.message,

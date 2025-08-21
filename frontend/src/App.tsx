@@ -4,6 +4,7 @@ import { QueryClient } from 'react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -37,8 +38,8 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Header */}
-      <Header />
+      {/* Header - Only show for non-dashboard pages */}
+      {!location.pathname.startsWith('/dashboard') && <Header />}
       
       {/* Main Content */}
       <main className="flex-1">
@@ -53,7 +54,9 @@ function App() {
             className="min-h-full"
           >
             <Routes location={location}>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/home" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="*" element={<NotFound />} />
@@ -62,8 +65,8 @@ function App() {
         </AnimatePresence>
       </main>
       
-      {/* Footer */}
-      <Footer />
+      {/* Footer - Only show for non-dashboard pages */}
+      {!location.pathname.startsWith('/dashboard') && <Footer />}
     </div>
   );
 }

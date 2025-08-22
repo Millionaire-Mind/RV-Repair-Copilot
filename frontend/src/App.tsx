@@ -34,6 +34,9 @@ const pageTransition = {
 
 function AppContent() {
   const location = useLocation();
+  
+  // Check if current route is Dashboard
+  const isDashboard = location.pathname === '/' || location.pathname === '/dashboard';
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white flex flex-col">
@@ -63,8 +66,8 @@ function AppContent() {
         </AnimatePresence>
       </main>
       
-      {/* Footer - Show for all pages */}
-      <Footer />
+      {/* Footer - Hide for Dashboard, show for other pages */}
+      {!isDashboard && <Footer />}
     </div>
   );
 }

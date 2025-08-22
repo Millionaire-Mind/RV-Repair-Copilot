@@ -520,7 +520,7 @@ If AC fails during travel:
                 <div className="space-y-4">
                   {/* Manual Search */}
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 dark:text-white mb-2">Search Manuals</h3>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Search Manuals</h3>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <input
@@ -557,7 +557,7 @@ If AC fails during travel:
                   {/* Pinned Manuals */}
                   {pinnedManuals.length > 0 && (
                     <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                      <h3 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center space-x-2">
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 flex items-center space-x-2">
                         <Star className="h-4 w-4 text-yellow-500" />
                         <span>Pinned Manuals</span>
                       </h3>
@@ -575,7 +575,7 @@ If AC fails during travel:
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  togglePinManual(manual.id);
+                                  togglePinManual(manual);
                                 }}
                                 className="p-1 text-yellow-500 hover:text-yellow-600 transition-colors duration-200"
                                 title="Unpin manual"
@@ -594,7 +594,7 @@ If AC fails during travel:
 
                   {/* Categories */}
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 dark:text-white mb-3">Categories</h3>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Categories</h3>
                     <div className="relative">
                       <select
                         value={selectedCategory}
@@ -610,15 +610,13 @@ If AC fails during travel:
                           </option>
                         ))}
                       </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                        <ChevronDown className="h-4 w-4 text-gray-400" />
-                      </div>
+                      <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
 
                   {/* Filtered Manuals List */}
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 dark:text-white mb-3">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
                       Manuals
                     </h3>
                     <div className="space-y-2 max-h-64 overflow-y-auto">

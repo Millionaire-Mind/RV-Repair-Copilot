@@ -32,8 +32,8 @@ import {
 // Global type declarations for Web Speech API
 declare global {
   interface Window {
-    SpeechRecognition: typeof SpeechRecognition;
-    webkitSpeechRecognition: typeof SpeechRecognition;
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
   }
 }
 
@@ -46,10 +46,9 @@ interface RVInfo {
 
 interface AIResponse {
   answer: string;
-  sources: string[];
+  sources?: string[];
   metadata: {
     question: string;
-    searchResults: number;
     processingTime: number;
     modelUsed: string;
     confidence: number;
@@ -59,15 +58,22 @@ interface AIResponse {
 interface Manual {
   id: string;
   title: string;
-  type: 'service' | 'owner' | 'parts' | 'wiring' | 'safety';
+  description: string;
   brand: string;
   year: string;
-  category: 'electrical' | 'plumbing' | 'hvac' | 'engine' | 'chassis' | 'interior';
-  description: string;
+  type: 'service' | 'owner' | 'parts' | 'wiring';
+  category: 'electrical' | 'plumbing' | 'hvac' | 'engine' | 'chassis' | 'interior' | 'safety';
   pages: number;
   lastUpdated: string;
-  isPinned: boolean;
   downloadUrl?: string;
+  isPinned?: boolean;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  count: number;
+  icon?: any;
 }
 
 const Dashboard: React.FC = () => {
@@ -190,7 +196,7 @@ const Dashboard: React.FC = () => {
     {
       id: '3',
       title: 'Propane Safety Handbook',
-      type: 'safety',
+      type: 'service',
       brand: 'Generic',
       year: '2023',
       category: 'safety',
@@ -238,10 +244,21 @@ const Dashboard: React.FC = () => {
       lastUpdated: '2023-07-30',
       isPinned: false,
       downloadUrl: '/manuals/rv-plumbing.pdf'
+    },
+    {
+      id: 'safety-1',
+      title: 'Safety Guidelines & Procedures',
+      description: 'Comprehensive safety protocols and emergency procedures for RV operations',
+      brand: 'Generic',
+      year: '2023',
+      type: 'service',
+      category: 'safety',
+      pages: 45,
+      lastUpdated: '2023-11-15'
     }
   ];
 
-  const categories = [
+  const categories: Category[] = [
     { id: 'all', name: 'All Categories', icon: BookOpen, count: manuals.length },
     { id: 'electrical', name: 'Electrical', icon: Lightning, count: manuals.filter(m => m.category === 'electrical').length },
     { id: 'plumbing', name: 'Plumbing', icon: Droplets, count: manuals.filter(m => m.category === 'plumbing').length },
@@ -411,7 +428,6 @@ If AC fails during travel:
       sources: bestMatch.sources,
       metadata: {
         question: query,
-        searchResults: 3,
         processingTime: 1450,
         modelUsed: 'GPT-4',
         confidence: 0.89
@@ -1066,11 +1082,11 @@ If AC fails during travel:
                 <button
                   onClick={() => {
                     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                      const recognition = new ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition)();
                       recognition.continuous = false;
                       recognition.interimResults = false;
                       recognition.lang = 'en-US';
-                      recognition.onresult = (event) => {
+                      recognition.onresult = (event: any) => {
                         const transcript = event.results[0][0].transcript;
                         // Here you would update the input value
                         console.log('Voice input for repair log:', transcript);

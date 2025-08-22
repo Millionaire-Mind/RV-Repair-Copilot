@@ -474,11 +474,11 @@
   }
   
   .pwa-header {
-    @apply pt-safe-area-inset-top;
+    @apply pt-4;
   }
   
   .pwa-footer {
-    @apply pb-safe-area-inset-bottom;
+    @apply pb-4;
   }
 }
 

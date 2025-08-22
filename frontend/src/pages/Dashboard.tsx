@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSpeechToText } from '../hooks/useSpeechToText';
 import { 
   Menu, 
   X, 
@@ -27,6 +28,14 @@ import {
   Mic,
   ChevronDown
 } from 'lucide-react';
+
+// Global type declarations for Web Speech API
+declare global {
+  interface Window {
+    SpeechRecognition: typeof SpeechRecognition;
+    webkitSpeechRecognition: typeof SpeechRecognition;
+  }
+}
 
 interface RVInfo {
   brand: string;
@@ -80,6 +89,75 @@ const Dashboard: React.FC = () => {
   const [selectedManual, setSelectedManual] = useState<Manual | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isManualDetailsOpen, setIsManualDetailsOpen] = useState(false);
+  const [pinnedManuals, setPinnedManuals] = useState<Manual[]>([]);
+
+  // Speech-to-text hooks for each field
+  const brandSpeech = useSpeechToText();
+  const modelSpeech = useSpeechToText();
+  const yearSpeech = useSpeechToText();
+  const typeSpeech = useSpeechToText();
+  const searchSpeech = useSpeechToText();
+  const manualSearchSpeech = useSpeechToText();
+
+  // Update input values when speech recognition completes
+  useEffect(() => {
+    if (brandSpeech.transcript && !brandSpeech.listening) {
+      setRvInfo(prev => ({ ...prev, brand: brandSpeech.transcript }));
+      brandSpeech.resetTranscript();
+    }
+  }, [brandSpeech.transcript, brandSpeech.listening]);
+
+  useEffect(() => {
+    if (modelSpeech.transcript && !modelSpeech.listening) {
+      setRvInfo(prev => ({ ...prev, model: modelSpeech.transcript }));
+      modelSpeech.resetTranscript();
+    }
+  }, [modelSpeech.transcript, modelSpeech.listening]);
+
+  useEffect(() => {
+    if (yearSpeech.transcript && !yearSpeech.listening) {
+      setRvInfo(prev => ({ ...prev, year: yearSpeech.transcript }));
+      yearSpeech.resetTranscript();
+    }
+  }, [yearSpeech.transcript, yearSpeech.listening]);
+
+  useEffect(() => {
+    if (typeSpeech.transcript && !typeSpeech.listening) {
+      setRvInfo(prev => ({ ...prev, type: typeSpeech.transcript }));
+      typeSpeech.resetTranscript();
+    }
+  }, [typeSpeech.transcript, typeSpeech.listening]);
+
+  useEffect(() => {
+    if (searchSpeech.transcript && !searchSpeech.listening) {
+      setSearchQuery(searchSpeech.transcript);
+      searchSpeech.resetTranscript();
+    }
+  }, [searchSpeech.transcript, searchSpeech.listening]);
+
+  useEffect(() => {
+    if (manualSearchSpeech.transcript && !manualSearchSpeech.listening) {
+      setManualSearchQuery(manualSearchSpeech.transcript);
+      manualSearchSpeech.resetTranscript();
+    }
+  }, [manualSearchSpeech.transcript, manualSearchSpeech.listening]);
+
+  // Load pinned manuals from local storage on component mount
+  useEffect(() => {
+    const savedPinnedManuals = localStorage.getItem('pinnedManuals');
+    if (savedPinnedManuals) {
+      try {
+        setPinnedManuals(JSON.parse(savedPinnedManuals));
+      } catch (error) {
+        console.error('Error loading pinned manuals:', error);
+      }
+    }
+  }, []);
+
+  // Save pinned manuals to local storage whenever they change
+  useEffect(() => {
+    localStorage.setItem('pinnedManuals', JSON.stringify(pinnedManuals));
+  }, [pinnedManuals]);
 
   // Mock manuals data
   const manuals: Manual[] = [
@@ -395,11 +473,20 @@ If AC fails during travel:
   };
 
   const downloadManual = (manual: Manual) => {
-    if (manual.downloadUrl) {
-      // In a real app, this would trigger a download
-      console.log('Downloading manual:', manual.title);
-      // window.open(manual.downloadUrl, '_blank');
-    }
+    // Mock download functionality
+    console.log(`Downloading ${manual.title}`);
+    alert(`Download started for ${manual.title}`);
+  };
+
+  const togglePinManual = (manual: Manual) => {
+    setPinnedManuals(prev => {
+      const isPinned = prev.some(pinned => pinned.id === manual.id);
+      if (isPinned) {
+        return prev.filter(pinned => pinned.id !== manual.id);
+      } else {
+        return [...prev, manual];
+      }
+    });
   };
 
   return (
@@ -441,10 +528,69 @@ If AC fails during travel:
                         value={manualSearchQuery}
                         onChange={(e) => setManualSearchQuery(e.target.value)}
                         placeholder="Search manuals..."
-                        className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className={`w-full pl-10 pr-12 py-2 text-sm border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                          manualSearchSpeech.listening 
+                            ? 'border-blue-500 dark:border-blue-400' 
+                            : 'border-gray-300 dark:border-gray-600'
+                        }`}
                       />
+                      <button
+                        onClick={() => manualSearchSpeech.listening ? manualSearchSpeech.stopListening() : manualSearchSpeech.startListening()}
+                        disabled={!manualSearchSpeech.isSupported}
+                        className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors duration-200 ${
+                          manualSearchSpeech.listening
+                            ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
+                            : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                        } ${!manualSearchSpeech.isSupported ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        title={manualSearchSpeech.isSupported ? 'Voice input' : 'Speech-to-text not supported on this browser'}
+                      >
+                        <Mic className="h-3 w-3" />
+                      </button>
+                      {manualSearchSpeech.listening && (
+                        <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
+                          Listening...
+                        </span>
+                      )}
                     </div>
                   </div>
+
+                  {/* Pinned Manuals */}
+                  {pinnedManuals.length > 0 && (
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                      <h3 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center space-x-2">
+                        <Star className="h-4 w-4 text-yellow-500" />
+                        <span>Pinned Manuals</span>
+                      </h3>
+                      <div className="space-y-2 max-h-32 overflow-y-auto">
+                        {pinnedManuals.map((manual) => (
+                          <button
+                            key={manual.id}
+                            onClick={() => handleManualClick(manual)}
+                            className="w-full p-2 text-left bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <h4 className="font-medium text-gray-900 dark:text-white text-xs truncate">
+                                {manual.title}
+                              </h4>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  togglePinManual(manual.id);
+                                }}
+                                className="p-1 text-yellow-500 hover:text-yellow-600 transition-colors duration-200"
+                                title="Unpin manual"
+                              >
+                                <Star className="h-3 w-3 fill-current" />
+                              </button>
+                            </div>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                              {manual.brand} • {manual.year}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Categories */}
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
@@ -460,7 +606,7 @@ If AC fails during travel:
                       >
                         {categories.map((category) => (
                           <option key={category.id} value={category.id}>
-                            {category.name} ({category.count})
+                            {category.name}
                           </option>
                         ))}
                       </select>
@@ -473,7 +619,7 @@ If AC fails during travel:
                   {/* Filtered Manuals List */}
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                     <h3 className="font-medium text-gray-900 dark:text-white mb-3">
-                      Manuals ({filteredManuals.length})
+                      Manuals
                     </h3>
                     <div className="space-y-2 max-h-64 overflow-y-auto">
                       {filteredManuals.length > 0 ? (
@@ -487,7 +633,20 @@ If AC fails during travel:
                               <h4 className="font-medium text-gray-900 dark:text-white text-sm truncate">
                                 {manual.title}
                               </h4>
-                              {manual.isPinned && <Star className="h-3 w-3 text-yellow-500" />}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  togglePinManual(manual);
+                                }}
+                                className={`p-1 transition-colors duration-200 ${
+                                  pinnedManuals.some(pinned => pinned.id === manual.id)
+                                    ? 'text-yellow-500 hover:text-yellow-600'
+                                    : 'text-gray-400 hover:text-yellow-500'
+                                }`}
+                                title={pinnedManuals.some(pinned => pinned.id === manual.id) ? 'Unpin manual' : 'Pin manual'}
+                              >
+                                <Star className={`h-3 w-3 ${pinnedManuals.some(pinned => pinned.id === manual.id) ? 'fill-current' : ''}`} />
+                              </button>
                             </div>
                             <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
                               {manual.brand} • {manual.year} • {manual.type}
@@ -541,16 +700,6 @@ If AC fails during travel:
           )}
         </AnimatePresence>
 
-        {/* Left Sidebar Toggle Button */}
-        {isLeftSidebarCollapsed && (
-          <button
-            onClick={() => setIsLeftSidebarCollapsed(false)}
-            className="fixed left-4 top-24 z-10 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-          >
-            <ChevronRight className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-          </button>
-        )}
-
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col min-w-0">
           {/* Sidebar Toggle Button */}
@@ -579,9 +728,30 @@ If AC fails during travel:
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Describe your RV repair issue..."
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    className={`w-full pl-10 pr-12 py-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                      searchSpeech.listening 
+                        ? 'border-blue-500 dark:border-blue-400' 
+                        : 'border-gray-300 dark:border-gray-600'
+                    }`}
                     disabled={isSearching}
                   />
+                  <button
+                    onClick={() => searchSpeech.listening ? searchSpeech.stopListening() : searchSpeech.startListening()}
+                    disabled={!searchSpeech.isSupported || isSearching}
+                    className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors duration-200 ${
+                      searchSpeech.listening
+                        ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
+                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                    } ${!searchSpeech.isSupported || isSearching ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    title={searchSpeech.isSupported ? 'Voice input' : 'Speech-to-text not supported on this browser'}
+                  >
+                    <Mic className="h-4 w-4" />
+                  </button>
+                  {searchSpeech.listening && (
+                    <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
+                      Listening...
+                      </span>
+                  )}
                 </div>
                 <button 
                   onClick={handleSearch}
@@ -616,27 +786,29 @@ If AC fails during travel:
                       placeholder="Brand"
                       value={rvInfo.brand}
                       onChange={(e) => setRvInfo(prev => ({ ...prev, brand: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                        brandSpeech.listening 
+                          ? 'border-blue-500 dark:border-blue-400' 
+                          : 'border-gray-300 dark:border-gray-600'
+                      }`}
                     />
                     <button
-                      onClick={() => {
-                        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                          const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                          recognition.continuous = false;
-                          recognition.interimResults = false;
-                          recognition.lang = 'en-US';
-                          recognition.onresult = (event) => {
-                            const transcript = event.results[0][0].transcript;
-                            setRvInfo(prev => ({ ...prev, brand: transcript }));
-                          };
-                          recognition.start();
-                        }
-                      }}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                      title="Voice input"
+                      onClick={() => brandSpeech.listening ? brandSpeech.stopListening() : brandSpeech.startListening()}
+                      disabled={!brandSpeech.isSupported}
+                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors duration-200 ${
+                        brandSpeech.listening
+                          ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
+                          : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                      } ${!brandSpeech.isSupported ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      title={brandSpeech.isSupported ? 'Voice input' : 'Speech-to-text not supported on this browser'}
                     >
                       <Mic className="h-3 w-3" />
                     </button>
+                    {brandSpeech.listening && (
+                      <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
+                        Listening...
+                      </span>
+                    )}
                   </div>
                   
                   <div className="relative">
@@ -645,27 +817,29 @@ If AC fails during travel:
                       placeholder="Model"
                       value={rvInfo.model}
                       onChange={(e) => setRvInfo(prev => ({ ...prev, model: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                        modelSpeech.listening 
+                          ? 'border-blue-500 dark:border-blue-400' 
+                          : 'border-gray-300 dark:border-gray-600'
+                      }`}
                     />
                     <button
-                      onClick={() => {
-                        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                          const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                          recognition.continuous = false;
-                          recognition.interimResults = false;
-                          recognition.lang = 'en-US';
-                          recognition.onresult = (event) => {
-                            const transcript = event.results[0][0].transcript;
-                            setRvInfo(prev => ({ ...prev, model: transcript }));
-                          };
-                          recognition.start();
-                        }
-                      }}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                      title="Voice input"
+                      onClick={() => modelSpeech.listening ? modelSpeech.stopListening() : modelSpeech.startListening()}
+                      disabled={!modelSpeech.isSupported}
+                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors duration-200 ${
+                        modelSpeech.listening
+                          ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
+                          : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                      } ${!modelSpeech.isSupported ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      title={modelSpeech.isSupported ? 'Voice input' : 'Speech-to-text not supported on this browser'}
                     >
                       <Mic className="h-3 w-3" />
                     </button>
+                    {modelSpeech.listening && (
+                      <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
+                        Listening...
+                      </span>
+                    )}
                   </div>
                   
                   <div className="relative">
@@ -674,27 +848,29 @@ If AC fails during travel:
                       placeholder="Year"
                       value={rvInfo.year}
                       onChange={(e) => setRvInfo(prev => ({ ...prev, year: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                        yearSpeech.listening 
+                          ? 'border-blue-500 dark:border-blue-400' 
+                          : 'border-gray-300 dark:border-gray-600'
+                      }`}
                     />
                     <button
-                      onClick={() => {
-                        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                          const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                          recognition.continuous = false;
-                          recognition.interimResults = false;
-                          recognition.lang = 'en-US';
-                          recognition.onresult = (event) => {
-                            const transcript = event.results[0][0].transcript;
-                            setRvInfo(prev => ({ ...prev, year: transcript }));
-                          };
-                          recognition.start();
-                        }
-                      }}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                      title="Voice input"
+                      onClick={() => yearSpeech.listening ? yearSpeech.stopListening() : yearSpeech.startListening()}
+                      disabled={!yearSpeech.isSupported}
+                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors duration-200 ${
+                        yearSpeech.listening
+                          ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
+                          : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                      } ${!yearSpeech.isSupported ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      title={yearSpeech.isSupported ? 'Voice input' : 'Speech-to-text not supported on this browser'}
                     >
                       <Mic className="h-3 w-3" />
                     </button>
+                    {yearSpeech.listening && (
+                      <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
+                        Listening...
+                      </span>
+                    )}
                   </div>
                   
                   <div className="relative">
@@ -703,27 +879,29 @@ If AC fails during travel:
                       placeholder="Type"
                       value={rvInfo.type}
                       onChange={(e) => setRvInfo(prev => ({ ...prev, type: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                        typeSpeech.listening 
+                          ? 'border-blue-500 dark:border-blue-400' 
+                          : 'border-gray-300 dark:border-gray-600'
+                      }`}
                     />
                     <button
-                      onClick={() => {
-                        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                          const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                          recognition.continuous = false;
-                          recognition.interimResults = false;
-                          recognition.lang = 'en-US';
-                          recognition.onresult = (event) => {
-                            const transcript = event.results[0][0].transcript;
-                            setRvInfo(prev => ({ ...prev, type: transcript }));
-                          };
-                          recognition.start();
-                        }
-                      }}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                      title="Voice input"
+                      onClick={() => typeSpeech.listening ? typeSpeech.stopListening() : typeSpeech.startListening()}
+                      disabled={!typeSpeech.isSupported}
+                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors duration-200 ${
+                        typeSpeech.listening
+                          ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
+                          : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                      } ${!typeSpeech.isSupported ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      title={typeSpeech.isSupported ? 'Voice input' : 'Speech-to-text not supported on this browser'}
                     >
                       <Mic className="h-3 w-3" />
                     </button>
+                    {typeSpeech.listening && (
+                      <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
+                        Listening...
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -880,6 +1058,35 @@ If AC fails during travel:
                 </div>
               </div>
               
+              {/* Add New Note Input */}
+              <div className="mb-4 relative">
+                <input
+                  type="text"
+                  placeholder="Add a new note to the repair log..."
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  onClick={() => {
+                    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                      recognition.continuous = false;
+                      recognition.interimResults = false;
+                      recognition.lang = 'en-US';
+                      recognition.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        // Here you would update the input value
+                        console.log('Voice input for repair log:', transcript);
+                      };
+                      recognition.start();
+                    }
+                  }}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  title="Voice input"
+                >
+                  <Mic className="h-3 w-3" />
+                </button>
+              </div>
+
               <div className="space-y-3">
                 {/* Sample Log Entries */}
                 <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
@@ -933,142 +1140,17 @@ If AC fails during travel:
             </div>
           </div>
         </main>
-
-        {/* Right Sidebar - Quick Access Widgets */}
-        <AnimatePresence>
-          {!isRightSidebarCollapsed && (
-            <motion.aside
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 320, opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 overflow-hidden"
-            >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Quick Access
-                  </h2>
-                  <button
-                    onClick={() => setIsRightSidebarCollapsed(true)}
-                    className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded transition-colors duration-200"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                </div>
-                
-                <div className="space-y-4">
-                  {/* Parts Lookup */}
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center space-x-2">
-                      <Wrench className="h-4 w-4" />
-                      <span>Parts Lookup</span>
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      Find replacement parts for your RV
-                    </p>
-                    <div className="space-y-2">
-                      <input
-                        type="text"
-                        placeholder="Search parts..."
-                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                      <button className="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors duration-200">
-                        Search Parts
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Troubleshooting Checklists */}
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center space-x-2">
-                      <CheckCircle className="h-4 w-4" />
-                      <span>Quick Checklists</span>
-                    </h3>
-                    <div className="space-y-2 text-sm">
-                      <button className="w-full p-2 text-left bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-                        Pre-Trip Inspection
-                      </button>
-                      <button className="w-full p-2 text-left bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-                        Winterization Steps
-                      </button>
-                      <button className="w-full p-2 text-left bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-                        Battery Maintenance
-                      </button>
-                      <button className="w-full p-2 text-left bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-                        Propane Safety Check
-                      </button>
-                    </div>
-                  </div>
-                  
-                  {/* Safety Alerts & Recalls */}
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center space-x-2">
-                      <Shield className="h-4 w-4" />
-                      <span>Safety Alerts</span>
-                    </h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
-                        <div className="flex items-center space-x-2">
-                          <AlertTriangle className="h-3 w-3 text-yellow-600" />
-                          <span className="text-yellow-800 dark:text-yellow-200">Propane system recall notice</span>
-                        </div>
-                        <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">Check your model year</p>
-                      </div>
-                      <div className="p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
-                        <div className="flex items-center space-x-2">
-                          <AlertTriangle className="h-3 w-3 text-red-600" />
-                          <span className="text-red-800 dark:text-red-200">Emergency brake system alert</span>
-                        </div>
-                        <p className="text-xs text-red-700 dark:text-red-300 mt-1">Immediate attention required</p>
-                      </div>
-                      <div className="p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
-                        <div className="flex items-center space-x-2">
-                          <CheckCircle className="h-3 w-3 text-blue-600" />
-                          <span className="text-blue-800 dark:text-blue-200">New safety guidelines available</span>
-                        </div>
-                        <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">Updated 2 days ago</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Quick Actions */}
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center space-x-2">
-                      <Zap className="h-4 w-4" />
-                      <span>Quick Actions</span>
-                    </h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button className="p-2 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md transition-colors duration-200">
-                        New Repair
-                      </button>
-                      <button className="p-2 bg-green-600 hover:bg-green-700 text-white text-xs rounded-md transition-colors duration-200">
-                        Schedule Service
-                      </button>
-                      <button className="p-2 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-md transition-colors duration-200">
-                        Order Parts
-                      </button>
-                      <button className="p-2 bg-orange-600 hover:bg-orange-700 text-white text-xs rounded-md transition-colors duration-200">
-                        Contact Tech
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.aside>
-          )}
-        </AnimatePresence>
-
-        {/* Right Sidebar Toggle Button */}
-        {isRightSidebarCollapsed && (
-          <button
-            onClick={() => setIsRightSidebarCollapsed(false)}
-            className="fixed right-4 top-24 z-10 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-          >
-            <ChevronLeft className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-          </button>
-        )}
       </div>
+
+      {/* Left Sidebar Toggle Button */}
+      {isLeftSidebarCollapsed && (
+        <button
+          onClick={() => setIsLeftSidebarCollapsed(false)}
+          className="fixed left-4 top-24 z-10 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+        >
+          <ChevronRight className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+        </button>
+      )}
 
       {/* Manual Details Modal */}
       <AnimatePresence>
@@ -1139,15 +1221,15 @@ If AC fails during travel:
 
                   <div className="flex items-center space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <button
-                      onClick={() => toggleManualPin(selectedManual.id)}
+                      onClick={() => togglePinManual(selectedManual)}
                       className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
-                        selectedManual.isPinned
+                        pinnedManuals.some(pinned => pinned.id === selectedManual.id)
                           ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300'
                           : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
                     >
-                      <Star className={`h-4 w-4 ${selectedManual.isPinned ? 'fill-current' : ''}`} />
-                      <span>{selectedManual.isPinned ? 'Unpin' : 'Pin'}</span>
+                      <Star className={`h-4 w-4 ${pinnedManuals.some(pinned => pinned.id === selectedManual.id) ? 'fill-current' : ''}`} />
+                      <span>{pinnedManuals.some(pinned => pinned.id === selectedManual.id) ? 'Unpin' : 'Pin It'}</span>
                     </button>
                     
                     <button

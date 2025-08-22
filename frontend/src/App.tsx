@@ -37,8 +37,8 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white flex flex-col">
-      {/* Header - Only show for non-dashboard pages */}
-      {!location.pathname.startsWith('/dashboard') && <Header />}
+      {/* Header - Show for all pages */}
+      <Header />
       
       {/* Main Content */}
       <main className="flex-1">
@@ -55,7 +55,6 @@ function AppContent() {
             <Routes location={location}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/home" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="*" element={<NotFound />} />
@@ -64,8 +63,8 @@ function AppContent() {
         </AnimatePresence>
       </main>
       
-      {/* Footer - Only show for non-dashboard pages */}
-      {!location.pathname.startsWith('/dashboard') && <Footer />}
+      {/* Footer - Show for all pages */}
+      <Footer />
     </div>
   );
 }

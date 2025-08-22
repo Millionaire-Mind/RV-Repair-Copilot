@@ -7,10 +7,6 @@ import {
   ChevronRight, 
   Search, 
   BookOpen, 
-  Settings,
-  User,
-  Sun,
-  Moon,
   Send,
   Copy,
   Download,
@@ -68,7 +64,6 @@ interface Manual {
 const Dashboard: React.FC = () => {
   const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(false);
   const [isRightSidebarCollapsed, setIsRightSidebarCollapsed] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [rvInfo, setRvInfo] = useState<RVInfo>({
     brand: '',
@@ -176,11 +171,6 @@ const Dashboard: React.FC = () => {
     { id: 'chassis', name: 'Chassis', icon: Truck, count: manuals.filter(m => m.category === 'chassis').length },
     { id: 'safety', name: 'Safety', icon: Shield, count: manuals.filter(m => m.category === 'safety').length }
   ];
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
-  };
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -414,48 +404,8 @@ If AC fails during travel:
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Top Header Bar */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Left side - Title and Menu */}
-          <div className="flex items-center space-x-4">
-            <button 
-              onClick={() => setIsLeftSidebarCollapsed(!isLeftSidebarCollapsed)}
-              className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              RV Repair Copilot
-            </h1>
-            <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
-              Dashboard
-            </span>
-          </div>
-          
-          {/* Right side - User Profile and Settings */}
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-              aria-label="Toggle dark mode"
-            >
-              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </button>
-            
-            <button className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-              <Settings className="h-5 w-5" />
-            </button>
-            
-            <button className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-              <User className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-      </header>
-
       {/* Main Dashboard Layout */}
-      <div className="flex h-[calc(100vh-88px)]">
+      <div className="flex h-[calc(100vh-64px)]">
         {/* Left Sidebar - Manuals & Knowledge Base */}
         <AnimatePresence>
           {!isLeftSidebarCollapsed && (
@@ -603,8 +553,18 @@ If AC fails during travel:
 
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col min-w-0">
+          {/* Sidebar Toggle Button */}
+          <div className="p-4 pb-2">
+            <button 
+              onClick={() => setIsLeftSidebarCollapsed(!isLeftSidebarCollapsed)}
+              className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
+
           {/* Search & Query Section */}
-          <div className="p-6 pb-4">
+          <div className="px-6 pb-4">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Ask RV Repair Copilot

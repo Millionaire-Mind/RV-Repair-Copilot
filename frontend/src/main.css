@@ -33,11 +33,11 @@
 /* Base Styles */
 @layer base {
   * {
-    @apply border-border;
+    @apply border-gray-200 dark:border-gray-700;
   }
   
   body {
-    @apply bg-background text-foreground;
+    @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-white;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -76,7 +76,7 @@
   
   /* Focus styles */
   :focus-visible {
-    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-background;
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-white dark:ring-offset-gray-900;
   }
   
   /* Typography improvements */
@@ -109,21 +109,19 @@
   }
   
   p {
-    @apply leading-relaxed;
+    @apply leading-7;
   }
   
-  /* Link styles */
   a {
     @apply text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors duration-200;
   }
   
-  /* Code styles */
   code {
-    @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded text-sm font-mono;
+    @apply relative rounded bg-gray-100 dark:bg-gray-800 px-[0.3rem] py-[0.2rem] font-mono text-sm;
   }
   
   pre {
-    @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-4 rounded-lg overflow-x-auto;
+    @apply overflow-x-auto rounded-lg bg-gray-100 dark:bg-gray-800 p-4;
   }
   
   pre code {
@@ -133,9 +131,9 @@
 
 /* Component Styles */
 @layer components {
-  /* Button variants */
+  /* Button styles */
   .btn {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background;
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
   
   .btn-primary {
@@ -147,15 +145,15 @@
   }
   
   .btn-outline {
-    @apply btn border border-input bg-background hover:bg-accent hover:text-accent-foreground;
+    @apply btn border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white;
   }
   
   .btn-ghost {
-    @apply btn hover:bg-accent hover:text-accent-foreground;
+    @apply btn hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white;
   }
   
   .btn-link {
-    @apply btn text-primary underline-offset-4 hover:underline;
+    @apply btn text-primary-600 underline-offset-4 hover:underline;
   }
   
   .btn-sm {
@@ -172,7 +170,7 @@
   
   /* Input styles */
   .input {
-    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50;
   }
   
   .input-lg {
@@ -185,7 +183,7 @@
   
   /* Card styles */
   .card {
-    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+    @apply rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm;
   }
   
   .card-header {
@@ -197,7 +195,7 @@
   }
   
   .card-description {
-    @apply text-sm text-muted-foreground;
+    @apply text-sm text-gray-600 dark:text-gray-400;
   }
   
   .card-content {
@@ -210,27 +208,27 @@
   
   /* Badge styles */
   .badge {
-    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
   }
   
   .badge-primary {
-    @apply badge border-transparent bg-primary text-primary-foreground hover:bg-primary/80;
+    @apply badge border-transparent bg-primary-600 text-white hover:bg-primary-700;
   }
   
   .badge-secondary {
-    @apply badge border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80;
+    @apply badge border-transparent bg-secondary-600 text-white hover:bg-secondary-700;
   }
   
   .badge-success {
-    @apply badge border-transparent bg-success text-success-foreground hover:bg-success/80;
+    @apply badge border-transparent bg-green-600 text-white hover:bg-green-700;
   }
   
   .badge-warning {
-    @apply badge border-transparent bg-warning text-warning-foreground hover:bg-warning/80;
+    @apply badge border-transparent bg-yellow-600 text-white hover:bg-yellow-700;
   }
   
   .badge-error {
-    @apply badge border-transparent bg-error text-error-foreground hover:bg-error/80;
+    @apply badge border-transparent bg-red-600 text-white hover:bg-red-700;
   }
   
   /* Alert styles */
@@ -254,14 +252,9 @@
     @apply alert border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200;
   }
   
-  /* Loading spinner */
+  /* Spinner styles */
   .spinner {
     @apply animate-spin rounded-full border-2 border-gray-300 border-t-primary-600;
-  }
-  
-  /* Gradient text */
-  .gradient-text {
-    @apply bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent;
   }
   
   /* Glass effect */
@@ -271,15 +264,15 @@
   
   /* RV-specific styles */
   .rv-card {
-    @apply card hover:shadow-medium transition-all duration-300 hover:-translate-y-1;
+    @apply bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 border border-blue-200 dark:border-blue-800;
   }
   
-  .rv-button {
-    @apply btn-primary bg-rv-blue hover:bg-rv-blue/90;
+  .rv-header {
+    @apply bg-gradient-to-r from-primary-600 to-primary-700 text-white;
   }
   
-  .rv-badge {
-    @apply badge-primary bg-rv-green hover:bg-rv-green/80;
+  .rv-accent {
+    @apply bg-gradient-to-r from-orange-400 to-red-500 text-white;
   }
 }
 
@@ -314,30 +307,20 @@
   
   /* Responsive utilities */
   .mobile-only {
-    @apply block sm:hidden;
-  }
-  
-  .desktop-only {
-    @apply hidden sm:block;
-  }
-  
-  .tablet-up {
-    @apply hidden md:block;
-  }
-  
-  .mobile-tablet {
     @apply block md:hidden;
   }
   
+  .desktop-only {
+    @apply hidden md:block;
+  }
+  
   /* Print utilities */
-  @media print {
-    .no-print {
-      @apply hidden;
-    }
-    
-    .print-only {
-      @apply block;
-    }
+  .print-only {
+    @apply hidden print:block;
+  }
+  
+  .no-print {
+    @apply block print:hidden;
   }
 }
 
@@ -487,7 +470,7 @@
 /* PWA specific styles */
 @media (display-mode: standalone) {
   body {
-    @apply bg-background;
+    @apply bg-white dark:bg-gray-900;
   }
   
   .pwa-header {

@@ -714,6 +714,140 @@ If AC fails during travel:
 
           {/* Search & Query Section */}
           <div className="px-6 pb-4">
+            {/* RV Unit Information Section */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                RV Unit Information
+              </h2>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Brand"
+                    value={rvInfo.brand}
+                    onChange={(e) => setRvInfo(prev => ({ ...prev, brand: e.target.value }))}
+                    className={`w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      brandSpeech.listening 
+                        ? 'border-blue-500 dark:border-blue-400' 
+                        : 'border-gray-300 dark:border-gray-600'
+                    }`}
+                  />
+                  <button
+                    onClick={() => brandSpeech.listening ? brandSpeech.stopListening() : brandSpeech.startListening()}
+                    disabled={!brandSpeech.isSupported}
+                    className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors duration-200 ${
+                      brandSpeech.listening
+                        ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
+                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                    } ${!brandSpeech.isSupported ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    title={brandSpeech.isSupported ? 'Voice input' : 'Speech-to-text not supported on this browser'}
+                  >
+                    <Mic className="h-3 w-3" />
+                  </button>
+                  {brandSpeech.listening && (
+                    <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
+                      Listening...
+                    </span>
+                  )}
+                </div>
+                
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Model"
+                    value={rvInfo.model}
+                    onChange={(e) => setRvInfo(prev => ({ ...prev, model: e.target.value }))}
+                    className={`w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      modelSpeech.listening 
+                        ? 'border-blue-500 dark:border-blue-400' 
+                        : 'border-gray-300 dark:border-gray-600'
+                    }`}
+                  />
+                  <button
+                    onClick={() => modelSpeech.listening ? modelSpeech.stopListening() : modelSpeech.startListening()}
+                    disabled={!modelSpeech.isSupported}
+                    className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors duration-200 ${
+                      modelSpeech.listening
+                        ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
+                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                    } ${!modelSpeech.isSupported ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    title={modelSpeech.isSupported ? 'Voice input' : 'Speech-to-text not supported on this browser'}
+                  >
+                    <Mic className="h-3 w-3" />
+                  </button>
+                  {modelSpeech.listening && (
+                    <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
+                      Listening...
+                    </span>
+                  )}
+                </div>
+                
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Year"
+                    value={rvInfo.year}
+                    onChange={(e) => setRvInfo(prev => ({ ...prev, year: e.target.value }))}
+                    className={`w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      yearSpeech.listening 
+                        ? 'border-blue-500 dark:border-blue-400' 
+                        : 'border-gray-300 dark:border-gray-600'
+                    }`}
+                  />
+                  <button
+                    onClick={() => yearSpeech.listening ? yearSpeech.stopListening() : yearSpeech.startListening()}
+                    disabled={!yearSpeech.isSupported}
+                    className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors duration-200 ${
+                      yearSpeech.listening
+                        ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
+                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                    } ${!yearSpeech.isSupported ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    title={yearSpeech.isSupported ? 'Voice input' : 'Speech-to-text not supported on this browser'}
+                  >
+                    <Mic className="h-3 w-3" />
+                  </button>
+                  {yearSpeech.listening && (
+                    <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
+                      Listening...
+                    </span>
+                  )}
+                </div>
+                
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Type"
+                    value={rvInfo.type}
+                    onChange={(e) => setRvInfo(prev => ({ ...prev, type: e.target.value }))}
+                    className={`w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      typeSpeech.listening 
+                        ? 'border-blue-500 dark:border-blue-400' 
+                        : 'border-gray-300 dark:border-gray-600'
+                    }`}
+                  />
+                  <button
+                    onClick={() => typeSpeech.listening ? typeSpeech.stopListening() : typeSpeech.startListening()}
+                    disabled={!typeSpeech.isSupported}
+                    className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors duration-200 ${
+                      typeSpeech.listening
+                        ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
+                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                    } ${!typeSpeech.isSupported ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    title={typeSpeech.isSupported ? 'Voice input' : 'Speech-to-text not supported on this browser'}
+                  >
+                    <Mic className="h-3 w-3" />
+                  </button>
+                  {typeSpeech.listening && (
+                    <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
+                      Listening...
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Ask RV Repair Copilot Section */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Ask RV Repair Copilot
@@ -750,7 +884,7 @@ If AC fails during travel:
                   {searchSpeech.listening && (
                     <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
                       Listening...
-                      </span>
+                    </span>
                   )}
                 </div>
                 <button 
@@ -772,140 +906,6 @@ If AC fails during travel:
                 </button>
               </div>
 
-              {/* RV Unit Information Section */}
-              <div className="mt-6 bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                <h3 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center space-x-2">
-                  <BookOpen className="h-4 w-4" />
-                  <span>RV Unit Information</span>
-                </h3>
-                
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Brand"
-                      value={rvInfo.brand}
-                      onChange={(e) => setRvInfo(prev => ({ ...prev, brand: e.target.value }))}
-                      className={`w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
-                        brandSpeech.listening 
-                          ? 'border-blue-500 dark:border-blue-400' 
-                          : 'border-gray-300 dark:border-gray-600'
-                      }`}
-                    />
-                    <button
-                      onClick={() => brandSpeech.listening ? brandSpeech.stopListening() : brandSpeech.startListening()}
-                      disabled={!brandSpeech.isSupported}
-                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors duration-200 ${
-                        brandSpeech.listening
-                          ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
-                          : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
-                      } ${!brandSpeech.isSupported ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                      title={brandSpeech.isSupported ? 'Voice input' : 'Speech-to-text not supported on this browser'}
-                    >
-                      <Mic className="h-3 w-3" />
-                    </button>
-                    {brandSpeech.listening && (
-                      <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
-                        Listening...
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Model"
-                      value={rvInfo.model}
-                      onChange={(e) => setRvInfo(prev => ({ ...prev, model: e.target.value }))}
-                      className={`w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
-                        modelSpeech.listening 
-                          ? 'border-blue-500 dark:border-blue-400' 
-                          : 'border-gray-300 dark:border-gray-600'
-                      }`}
-                    />
-                    <button
-                      onClick={() => modelSpeech.listening ? modelSpeech.stopListening() : modelSpeech.startListening()}
-                      disabled={!modelSpeech.isSupported}
-                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors duration-200 ${
-                        modelSpeech.listening
-                          ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
-                          : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
-                      } ${!modelSpeech.isSupported ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                      title={modelSpeech.isSupported ? 'Voice input' : 'Speech-to-text not supported on this browser'}
-                    >
-                      <Mic className="h-3 w-3" />
-                    </button>
-                    {modelSpeech.listening && (
-                      <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
-                        Listening...
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Year"
-                      value={rvInfo.year}
-                      onChange={(e) => setRvInfo(prev => ({ ...prev, year: e.target.value }))}
-                      className={`w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
-                        yearSpeech.listening 
-                          ? 'border-blue-500 dark:border-blue-400' 
-                          : 'border-gray-300 dark:border-gray-600'
-                      }`}
-                    />
-                    <button
-                      onClick={() => yearSpeech.listening ? yearSpeech.stopListening() : yearSpeech.startListening()}
-                      disabled={!yearSpeech.isSupported}
-                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors duration-200 ${
-                        yearSpeech.listening
-                          ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
-                          : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
-                      } ${!yearSpeech.isSupported ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                      title={yearSpeech.isSupported ? 'Voice input' : 'Speech-to-text not supported on this browser'}
-                    >
-                      <Mic className="h-3 w-3" />
-                    </button>
-                    {yearSpeech.listening && (
-                      <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
-                        Listening...
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Type"
-                      value={rvInfo.type}
-                      onChange={(e) => setRvInfo(prev => ({ ...prev, type: e.target.value }))}
-                      className={`w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
-                        typeSpeech.listening 
-                          ? 'border-blue-500 dark:border-blue-400' 
-                          : 'border-gray-300 dark:border-gray-600'
-                      }`}
-                    />
-                    <button
-                      onClick={() => typeSpeech.listening ? typeSpeech.stopListening() : typeSpeech.startListening()}
-                      disabled={!typeSpeech.isSupported}
-                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors duration-200 ${
-                        typeSpeech.listening
-                          ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
-                          : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
-                      } ${!typeSpeech.isSupported ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                      title={typeSpeech.isSupported ? 'Voice input' : 'Speech-to-text not supported on this browser'}
-                    >
-                      <Mic className="h-3 w-3" />
-                    </button>
-                    {typeSpeech.listening && (
-                      <span className="absolute -bottom-6 left-0 text-xs text-blue-600 dark:text-blue-400">
-                        Listening...
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
               {/* Popular Queries */}
               <div className="mt-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Popular queries:</p>
@@ -914,7 +914,7 @@ If AC fails during travel:
                     <button
                       key={index}
                       onClick={() => handlePopularQuery(query)}
-                      className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                      className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
                     >
                       {query}
                     </button>

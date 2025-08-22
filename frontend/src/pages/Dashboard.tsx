@@ -17,7 +17,17 @@ import {
   Share2,
   Save,
   Clock,
-  Zap
+  Zap,
+  FileText,
+  Wrench,
+  Zap as Lightning,
+  Droplets,
+  Snowflake,
+  Truck,
+  Shield,
+  AlertTriangle,
+  CheckCircle,
+  Star
 } from 'lucide-react';
 
 interface RVInfo {
@@ -39,6 +49,20 @@ interface AIResponse {
   };
 }
 
+interface Manual {
+  id: string;
+  title: string;
+  type: 'service' | 'owner' | 'parts' | 'wiring' | 'safety';
+  brand: string;
+  year: string;
+  category: 'electrical' | 'plumbing' | 'hvac' | 'engine' | 'chassis' | 'interior';
+  description: string;
+  pages: number;
+  lastUpdated: string;
+  isPinned: boolean;
+  downloadUrl?: string;
+}
+
 const Dashboard: React.FC = () => {
   const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(false);
   const [isRightSidebarCollapsed, setIsRightSidebarCollapsed] = useState(false);
@@ -54,6 +78,105 @@ const Dashboard: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [currentResponse, setCurrentResponse] = useState<AIResponse | null>(null);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  
+  // New state for manuals
+  const [manualSearchQuery, setManualSearchQuery] = useState('');
+  const [selectedManual, setSelectedManual] = useState<Manual | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isManualDetailsOpen, setIsManualDetailsOpen] = useState(false);
+
+  // Mock manuals data
+  const manuals: Manual[] = [
+    {
+      id: '1',
+      title: 'Winnebago Service Manual 2023',
+      type: 'service',
+      brand: 'Winnebago',
+      year: '2023',
+      category: 'chassis',
+      description: 'Comprehensive service manual covering all major systems including engine, transmission, brakes, and electrical.',
+      pages: 450,
+      lastUpdated: '2023-12-01',
+      isPinned: true,
+      downloadUrl: '/manuals/winnebago-service-2023.pdf'
+    },
+    {
+      id: '2',
+      title: 'RV Electrical Systems Guide',
+      type: 'service',
+      brand: 'Generic',
+      year: '2023',
+      category: 'electrical',
+      description: 'Complete guide to RV electrical systems including 12V and 120V systems, solar panels, and battery maintenance.',
+      pages: 320,
+      lastUpdated: '2023-11-15',
+      isPinned: true,
+      downloadUrl: '/manuals/rv-electrical-guide.pdf'
+    },
+    {
+      id: '3',
+      title: 'Propane Safety Handbook',
+      type: 'safety',
+      brand: 'Generic',
+      year: '2023',
+      category: 'safety',
+      description: 'Essential safety information for propane systems including leak detection, maintenance, and emergency procedures.',
+      pages: 85,
+      lastUpdated: '2023-10-20',
+      isPinned: true,
+      downloadUrl: '/manuals/propane-safety.pdf'
+    },
+    {
+      id: '4',
+      title: 'Dometic Refrigerator Manual',
+      type: 'owner',
+      brand: 'Dometic',
+      year: '2023',
+      category: 'hvac',
+      description: 'Owner manual for Dometic RV refrigerators including operation, troubleshooting, and maintenance.',
+      pages: 45,
+      lastUpdated: '2023-09-10',
+      isPinned: false,
+      downloadUrl: '/manuals/dometic-refrigerator.pdf'
+    },
+    {
+      id: '5',
+      title: 'Slide-Out Mechanism Guide',
+      type: 'service',
+      brand: 'Generic',
+      year: '2023',
+      category: 'chassis',
+      description: 'Service manual for slide-out mechanisms including maintenance, troubleshooting, and repair procedures.',
+      pages: 120,
+      lastUpdated: '2023-08-25',
+      isPinned: false,
+      downloadUrl: '/manuals/slide-out-guide.pdf'
+    },
+    {
+      id: '6',
+      title: 'RV Plumbing Systems',
+      type: 'service',
+      brand: 'Generic',
+      year: '2023',
+      category: 'plumbing',
+      description: 'Complete guide to RV plumbing including water systems, waste systems, and winterization procedures.',
+      pages: 180,
+      lastUpdated: '2023-07-30',
+      isPinned: false,
+      downloadUrl: '/manuals/rv-plumbing.pdf'
+    }
+  ];
+
+  const categories = [
+    { id: 'all', name: 'All Categories', icon: BookOpen, count: manuals.length },
+    { id: 'electrical', name: 'Electrical', icon: Lightning, count: manuals.filter(m => m.category === 'electrical').length },
+    { id: 'plumbing', name: 'Plumbing', icon: Droplets, count: manuals.filter(m => m.category === 'plumbing').length },
+    { id: 'hvac', name: 'HVAC', icon: Snowflake, count: manuals.filter(m => m.category === 'hvac').length },
+    { id: 'engine', name: 'Engine', icon: Zap, count: manuals.filter(m => m.category === 'engine').length },
+    { id: 'chassis', name: 'Chassis', icon: Truck, count: manuals.filter(m => m.category === 'chassis').length },
+    { id: 'interior', name: 'Interior', icon: Settings, count: manuals.filter(m => m.category === 'interior').length },
+    { id: 'safety', name: 'Safety', icon: Shield, count: manuals.filter(m => m.category === 'safety').length }
+  ];
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -255,6 +378,36 @@ If AC fails during travel:
     setTimeout(() => handleSearch(), 100);
   };
 
+  // Manual filtering and search
+  const filteredManuals = manuals.filter(manual => {
+    const matchesSearch = manualSearchQuery === '' || 
+      manual.title.toLowerCase().includes(manualSearchQuery.toLowerCase()) ||
+      manual.description.toLowerCase().includes(manualSearchQuery.toLowerCase()) ||
+      manual.brand.toLowerCase().includes(manualSearchQuery.toLowerCase());
+    
+    const matchesCategory = selectedCategory === 'all' || manual.category === selectedCategory;
+    
+    return matchesSearch && matchesCategory;
+  });
+
+  const handleManualClick = (manual: Manual) => {
+    setSelectedManual(manual);
+    setIsManualDetailsOpen(true);
+  };
+
+  const toggleManualPin = (manualId: string) => {
+    // In a real app, this would update the database
+    console.log('Toggling pin for manual:', manualId);
+  };
+
+  const downloadManual = (manual: Manual) => {
+    if (manual.downloadUrl) {
+      // In a real app, this would trigger a download
+      console.log('Downloading manual:', manual.title);
+      // window.open(manual.downloadUrl, '_blank');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Top Header Bar */}
@@ -321,30 +474,59 @@ If AC fails during travel:
                 </div>
                 
                 <div className="space-y-4">
+                  {/* Manual Search */}
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                     <h3 className="font-medium text-gray-900 dark:text-white mb-2">Search Manuals</h3>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <input
                         type="text"
+                        value={manualSearchQuery}
+                        onChange={(e) => setManualSearchQuery(e.target.value)}
                         placeholder="Search manuals..."
                         className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
                   </div>
+
+                  {/* Categories */}
+                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <h3 className="font-medium text-gray-900 dark:text-white mb-3">Categories</h3>
+                    <div className="space-y-2">
+                      {categories.map((category) => (
+                        <button
+                          key={category.id}
+                          onClick={() => setSelectedCategory(category.id)}
+                          className={`w-full flex items-center justify-between p-2 rounded-md text-sm transition-colors duration-200 ${
+                            selectedCategory === category.id
+                              ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <category.icon className="h-4 w-4" />
+                            <span>{category.name}</span>
+                          </div>
+                          <span className="text-xs bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded-full">
+                            {category.count}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   
+                  {/* Pinned Manuals */}
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                     <h3 className="font-medium text-gray-900 dark:text-white mb-2">Pinned Manuals</h3>
                     <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <div className="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
-                        Winnebago Service Manual 2023
-                      </div>
-                      <div className="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
-                        RV Electrical Systems Guide
-                      </div>
-                      <div className="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
-                        Propane Safety Handbook
-                      </div>
+                      {manuals.filter(m => m.isPinned).map((manual) => (
+                        <div key={manual.id} className="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                          <div className="flex items-center justify-between">
+                            <span className="truncate">{manual.title}</span>
+                            <Star className="h-3 w-3 text-yellow-500" />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
@@ -677,6 +859,101 @@ If AC fails during travel:
           </button>
         )}
       </div>
+
+      {/* Manual Details Modal */}
+      <AnimatePresence>
+        {isManualDetailsOpen && selectedManual && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+            onClick={() => setIsManualDetailsOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Manual Details
+                  </h2>
+                  <button
+                    onClick={() => setIsManualDetailsOpen(false)}
+                    className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                      {selectedManual.title}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {selectedManual.description}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Type:</span>
+                      <span className="ml-2 text-gray-600 dark:text-gray-400 capitalize">{selectedManual.type}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Brand:</span>
+                      <span className="ml-2 text-gray-600 dark:text-gray-400">{selectedManual.brand}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Year:</span>
+                      <span className="ml-2 text-gray-600 dark:text-gray-400">{selectedManual.year}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Pages:</span>
+                      <span className="ml-2 text-gray-600 dark:text-gray-400">{selectedManual.pages}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Category:</span>
+                      <span className="ml-2 text-gray-600 dark:text-gray-400 capitalize">{selectedManual.category}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Updated:</span>
+                      <span className="ml-2 text-gray-600 dark:text-gray-400">{selectedManual.lastUpdated}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button
+                      onClick={() => toggleManualPin(selectedManual.id)}
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
+                        selectedManual.isPinned
+                          ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      }`}
+                    >
+                      <Star className={`h-4 w-4 ${selectedManual.isPinned ? 'fill-current' : ''}`} />
+                      <span>{selectedManual.isPinned ? 'Unpin' : 'Pin'}</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => downloadManual(selectedManual)}
+                      className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+                    >
+                      <Download className="h-4 w-4" />
+                      <span>Download</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

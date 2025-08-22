@@ -432,7 +432,7 @@ If AC fails during travel:
             </span>
           </div>
           
-          {/* Right side - Dark Mode Toggle Only */}
+          {/* Right side - User Profile and Settings */}
           <div className="flex items-center space-x-3">
             <button
               onClick={toggleDarkMode}
@@ -440,6 +440,14 @@ If AC fails during travel:
               aria-label="Toggle dark mode"
             >
               {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </button>
+            
+            <button className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+              <Settings className="h-5 w-5" />
+            </button>
+            
+            <button className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+              <User className="h-5 w-5" />
             </button>
           </div>
         </div>
@@ -897,6 +905,77 @@ If AC fails during travel:
               )}
             </AnimatePresence>
           </div>
+
+          {/* Task & Repair Log Panel */}
+          <div className="px-6 pb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
+                  <FileText className="h-5 w-5" />
+                  <span>Task & Repair Log</span>
+                </h2>
+                <div className="flex items-center space-x-2">
+                  <button className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
+                    Export
+                  </button>
+                  <button className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200">
+                    New Task
+                  </button>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                {/* Sample Log Entries */}
+                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-gray-900 dark:text-white text-sm">Water Pump Issue - Winnebago 2023</h4>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">2 hours ago</span>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    Customer reported water pump not working. AI provided troubleshooting steps.
+                  </p>
+                  <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                    <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded">
+                      In Progress
+                    </span>
+                    <span>Technician: John D.</span>
+                  </div>
+                </div>
+                
+                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-gray-900 dark:text-white text-sm">AC Troubleshooting - Generic RV</h4>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">1 day ago</span>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    AC system diagnostic completed. Parts ordered for replacement.
+                  </p>
+                  <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                    <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 rounded">
+                      Waiting Parts
+                    </span>
+                    <span>Technician: Sarah M.</span>
+                  </div>
+                </div>
+                
+                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-gray-900 dark:text-white text-sm">Battery Maintenance - Fleet Service</h4>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">3 days ago</span>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    Battery inspection and maintenance completed. All systems operational.
+                  </p>
+                  <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                    <span className="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded">
+                      Completed
+                    </span>
+                    <span>Technician: Mike R.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </main>
 
         {/* Right Sidebar - Quick Access Widgets */}
@@ -923,25 +1002,99 @@ If AC fails during travel:
                 </div>
                 
                 <div className="space-y-4">
+                  {/* Parts Lookup */}
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 dark:text-white mb-2">Parts Lookup</h3>
+                    <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center space-x-2">
+                      <Wrench className="h-4 w-4" />
+                      <span>Parts Lookup</span>
+                    </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                       Find replacement parts for your RV
                     </p>
-                    <button className="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors duration-200">
-                      Search Parts
-                    </button>
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        placeholder="Search parts..."
+                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      <button className="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors duration-200">
+                        Search Parts
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Troubleshooting Checklists */}
+                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center space-x-2">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Quick Checklists</span>
+                    </h3>
+                    <div className="space-y-2 text-sm">
+                      <button className="w-full p-2 text-left bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        Pre-Trip Inspection
+                      </button>
+                      <button className="w-full p-2 text-left bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        Winterization Steps
+                      </button>
+                      <button className="w-full p-2 text-left bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        Battery Maintenance
+                      </button>
+                      <button className="w-full p-2 text-left bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        Propane Safety Check
+                      </button>
+                    </div>
                   </div>
                   
+                  {/* Safety Alerts & Recalls */}
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 dark:text-white mb-2">Safety Alerts</h3>
-                    <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                    <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center space-x-2">
+                      <Shield className="h-4 w-4" />
+                      <span>Safety Alerts</span>
+                    </h3>
+                    <div className="space-y-2 text-sm">
                       <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
-                        ⚠️ Propane system recall notice
+                        <div className="flex items-center space-x-2">
+                          <AlertTriangle className="h-3 w-3 text-yellow-600" />
+                          <span className="text-yellow-800 dark:text-yellow-200">Propane system recall notice</span>
+                        </div>
+                        <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">Check your model year</p>
                       </div>
                       <div className="p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
-                        🚨 Emergency brake system alert
+                        <div className="flex items-center space-x-2">
+                          <AlertTriangle className="h-3 w-3 text-red-600" />
+                          <span className="text-red-800 dark:text-red-200">Emergency brake system alert</span>
+                        </div>
+                        <p className="text-xs text-red-700 dark:text-red-300 mt-1">Immediate attention required</p>
                       </div>
+                      <div className="p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle className="h-3 w-3 text-blue-600" />
+                          <span className="text-blue-800 dark:text-blue-200">New safety guidelines available</span>
+                        </div>
+                        <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">Updated 2 days ago</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Actions */}
+                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center space-x-2">
+                      <Zap className="h-4 w-4" />
+                      <span>Quick Actions</span>
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button className="p-2 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md transition-colors duration-200">
+                        New Repair
+                      </button>
+                      <button className="p-2 bg-green-600 hover:bg-green-700 text-white text-xs rounded-md transition-colors duration-200">
+                        Schedule Service
+                      </button>
+                      <button className="p-2 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-md transition-colors duration-200">
+                        Order Parts
+                      </button>
+                      <button className="p-2 bg-orange-600 hover:bg-orange-700 text-white text-xs rounded-md transition-colors duration-200">
+                        Contact Tech
+                      </button>
                     </div>
                   </div>
                 </div>

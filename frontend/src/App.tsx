@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { QueryClient } from 'react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from './components/Header';
@@ -9,7 +9,6 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
-import { useLocation } from 'react-router-dom';
 
 // Page transition variants
 const pageVariants = {
@@ -33,11 +32,11 @@ const pageTransition = {
   duration: 0.4,
 };
 
-function App() {
+function AppContent() {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white flex flex-col">
       {/* Header - Only show for non-dashboard pages */}
       {!location.pathname.startsWith('/dashboard') && <Header />}
       
@@ -69,6 +68,10 @@ function App() {
       {!location.pathname.startsWith('/dashboard') && <Footer />}
     </div>
   );
+}
+
+function App() {
+  return <AppContent />;
 }
 
 export default App;

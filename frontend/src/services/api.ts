@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 // TypeScript declarations for Vite environment variables
 declare global {
@@ -14,15 +14,10 @@ declare global {
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 // Extend AxiosRequestConfig to include metadata
-interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
+interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
   metadata?: {
     startTime: Date;
   };
-}
-
-// Extend AxiosResponse to include the extended config
-interface ExtendedAxiosResponse<T = any> extends AxiosResponse<T> {
-  config: ExtendedAxiosRequestConfig;
 }
 
 // Create axios instance
@@ -36,7 +31,7 @@ const api: AxiosInstance = axios.create({
 
 // Request interceptor
 api.interceptors.request.use(
-  (config: ExtendedAxiosRequestConfig) => {
+  (config: InternalAxiosRequestConfig) => {
     // Add auth token if available
     const token = localStorage.getItem('authToken');
     if (token) {
@@ -45,7 +40,7 @@ api.interceptors.request.use(
     }
 
     // Add request start time for performance monitoring
-    config.metadata = { startTime: new Date() };
+    (config as ExtendedAxiosRequestConfig).metadata = { startTime: new Date() };
 
     // Log request
     console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
@@ -60,10 +55,11 @@ api.interceptors.request.use(
 
 // Response interceptor
 api.interceptors.response.use(
-  (response: ExtendedAxiosResponse) => {
+  (response: AxiosResponse) => {
     // Calculate request duration
-    if (response.config.metadata?.startTime) {
-      const duration = Date.now() - response.config.metadata.startTime.getTime();
+    const extendedConfig = response.config as ExtendedAxiosRequestConfig;
+    if (extendedConfig.metadata?.startTime) {
+      const duration = Date.now() - extendedConfig.metadata.startTime.getTime();
       console.log(`✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url} (${duration}ms)`);
     }
 
@@ -93,7 +89,7 @@ api.interceptors.response.use(
     } else if (error.response?.status === 429) {
       // Rate limited
       console.error('Rate limit exceeded');
-    } else if (error.response?.status >= 500) {
+    } else if (error.response?.status && error.response.status >= 500) {
       // Server error
       console.error('Server error occurred');
     }
@@ -163,6 +159,9 @@ export const apiService = {
     return response.data;
   },
 };
+
+// Legacy export for backward compatibility
+export const searchRVRepair = apiService.search;
 
 // Utility functions
 export const retry = async <T>(

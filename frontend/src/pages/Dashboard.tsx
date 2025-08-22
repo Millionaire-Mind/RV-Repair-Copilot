@@ -27,7 +27,8 @@ import {
   Shield,
   AlertTriangle,
   CheckCircle,
-  Star
+  Star,
+  Mic
 } from 'lucide-react';
 
 interface RVInfo {
@@ -74,7 +75,6 @@ const Dashboard: React.FC = () => {
     year: '',
     type: ''
   });
-  const [isRvInfoExpanded, setIsRvInfoExpanded] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [currentResponse, setCurrentResponse] = useState<AIResponse | null>(null);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
@@ -415,7 +415,10 @@ If AC fails during travel:
         <div className="flex items-center justify-between">
           {/* Left side - Title and Menu */}
           <div className="flex items-center space-x-4">
-            <button className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <button 
+              onClick={() => setIsLeftSidebarCollapsed(!isLeftSidebarCollapsed)}
+              className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+            >
               <Menu className="h-5 w-5" />
             </button>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -607,61 +610,130 @@ If AC fails during travel:
               
               {/* RV Information Section */}
               <div className="mb-4">
-                <button
-                  type="button"
-                  onClick={() => setIsRvInfoExpanded(!isRvInfoExpanded)}
-                  className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
-                >
-                  <BookOpen className="h-4 w-4" />
-                  <span>RV Unit Information</span>
-                  <motion.div
-                    animate={{ rotate: isRvInfoExpanded ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </motion.div>
-                </button>
-
-                <AnimatePresence>
-                  {isRvInfoExpanded && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3"
-                    >
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                  <h3 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center space-x-2">
+                    <BookOpen className="h-4 w-4" />
+                    <span>RV Unit Information</span>
+                  </h3>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="relative">
                       <input
                         type="text"
                         placeholder="Brand"
                         value={rvInfo.brand}
                         onChange={(e) => setRvInfo(prev => ({ ...prev, brand: e.target.value }))}
-                        className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
+                      <button
+                        onClick={() => {
+                          if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                            recognition.continuous = false;
+                            recognition.interimResults = false;
+                            recognition.lang = 'en-US';
+                            recognition.onresult = (event) => {
+                              const transcript = event.results[0][0].transcript;
+                              setRvInfo(prev => ({ ...prev, brand: transcript }));
+                            };
+                            recognition.start();
+                          }
+                        }}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        title="Voice input"
+                      >
+                        <Mic className="h-3 w-3" />
+                      </button>
+                    </div>
+                    
+                    <div className="relative">
                       <input
                         type="text"
                         placeholder="Model"
                         value={rvInfo.model}
                         onChange={(e) => setRvInfo(prev => ({ ...prev, model: e.target.value }))}
-                        className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
+                      <button
+                        onClick={() => {
+                          if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                            recognition.continuous = false;
+                            recognition.interimResults = false;
+                            recognition.lang = 'en-US';
+                            recognition.onresult = (event) => {
+                              const transcript = event.results[0][0].transcript;
+                              setRvInfo(prev => ({ ...prev, model: transcript }));
+                            };
+                            recognition.start();
+                          }
+                        }}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        title="Voice input"
+                      >
+                        <Mic className="h-3 w-3" />
+                      </button>
+                    </div>
+                    
+                    <div className="relative">
                       <input
                         type="text"
                         placeholder="Year"
                         value={rvInfo.year}
                         onChange={(e) => setRvInfo(prev => ({ ...prev, year: e.target.value }))}
-                        className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
+                      <button
+                        onClick={() => {
+                          if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                            recognition.continuous = false;
+                            recognition.interimResults = false;
+                            recognition.lang = 'en-US';
+                            recognition.onresult = (event) => {
+                              const transcript = event.results[0][0].transcript;
+                              setRvInfo(prev => ({ ...prev, year: transcript }));
+                            };
+                            recognition.start();
+                          }
+                        }}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        title="Voice input"
+                      >
+                        <Mic className="h-3 w-3" />
+                      </button>
+                    </div>
+                    
+                    <div className="relative">
                       <input
                         type="text"
                         placeholder="Type"
                         value={rvInfo.type}
                         onChange={(e) => setRvInfo(prev => ({ ...prev, type: e.target.value }))}
-                        className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                      <button
+                        onClick={() => {
+                          if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                            recognition.continuous = false;
+                            recognition.interimResults = false;
+                            recognition.lang = 'en-US';
+                            recognition.onresult = (event) => {
+                              const transcript = event.results[0][0].transcript;
+                              setRvInfo(prev => ({ ...prev, type: transcript }));
+                            };
+                            recognition.start();
+                          }
+                        }}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        title="Voice input"
+                      >
+                        <Mic className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="flex space-x-3">

@@ -514,6 +514,39 @@ If AC fails during travel:
                       ))}
                     </div>
                   </div>
+
+                  {/* Filtered Manuals List */}
+                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <h3 className="font-medium text-gray-900 dark:text-white mb-3">
+                      Manuals ({filteredManuals.length})
+                    </h3>
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {filteredManuals.length > 0 ? (
+                        filteredManuals.map((manual) => (
+                          <button
+                            key={manual.id}
+                            onClick={() => handleManualClick(manual)}
+                            className="w-full p-3 text-left bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <h4 className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                                {manual.title}
+                              </h4>
+                              {manual.isPinned && <Star className="h-3 w-3 text-yellow-500" />}
+                            </div>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                              {manual.brand} • {manual.year} • {manual.type}
+                            </p>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="text-center text-gray-500 dark:text-gray-400 py-4">
+                          <BookOpen className="h-8 w-8 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
+                          <p className="text-sm">No manuals found</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   
                   {/* Pinned Manuals */}
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">

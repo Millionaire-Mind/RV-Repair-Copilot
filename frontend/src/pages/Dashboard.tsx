@@ -172,9 +172,7 @@ const Dashboard: React.FC = () => {
     { id: 'electrical', name: 'Electrical', icon: Lightning, count: manuals.filter(m => m.category === 'electrical').length },
     { id: 'plumbing', name: 'Plumbing', icon: Droplets, count: manuals.filter(m => m.category === 'plumbing').length },
     { id: 'hvac', name: 'HVAC', icon: Snowflake, count: manuals.filter(m => m.category === 'hvac').length },
-    { id: 'engine', name: 'Engine', icon: Zap, count: manuals.filter(m => m.category === 'engine').length },
     { id: 'chassis', name: 'Chassis', icon: Truck, count: manuals.filter(m => m.category === 'chassis').length },
-    { id: 'interior', name: 'Interior', icon: Settings, count: manuals.filter(m => m.category === 'interior').length },
     { id: 'safety', name: 'Safety', icon: Shield, count: manuals.filter(m => m.category === 'safety').length }
   ];
 
@@ -412,7 +410,7 @@ If AC fails during travel:
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Top Header Bar */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           {/* Left side - Title and Menu */}
           <div className="flex items-center space-x-4">
             <button 
@@ -446,6 +444,132 @@ If AC fails during travel:
             <button className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
               <User className="h-5 w-5" />
             </button>
+          </div>
+        </div>
+
+        {/* RV Unit Information Section - Integrated into header */}
+        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+          <h3 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center space-x-2">
+            <BookOpen className="h-4 w-4" />
+            <span>RV Unit Information</span>
+          </h3>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Brand"
+                value={rvInfo.brand}
+                onChange={(e) => setRvInfo(prev => ({ ...prev, brand: e.target.value }))}
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <button
+                onClick={() => {
+                  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                    recognition.continuous = false;
+                    recognition.interimResults = false;
+                    recognition.lang = 'en-US';
+                    recognition.onresult = (event) => {
+                      const transcript = event.results[0][0].transcript;
+                      setRvInfo(prev => ({ ...prev, brand: transcript }));
+                    };
+                    recognition.start();
+                  }
+                }}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                title="Voice input"
+              >
+                <Mic className="h-3 w-3" />
+              </button>
+            </div>
+            
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Model"
+                value={rvInfo.model}
+                onChange={(e) => setRvInfo(prev => ({ ...prev, model: e.target.value }))}
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <button
+                onClick={() => {
+                  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                    recognition.continuous = false;
+                    recognition.interimResults = false;
+                    recognition.lang = 'en-US';
+                    recognition.onresult = (event) => {
+                      const transcript = event.results[0][0].transcript;
+                      setRvInfo(prev => ({ ...prev, model: transcript }));
+                    };
+                    recognition.start();
+                  }
+                }}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                title="Voice input"
+              >
+                <Mic className="h-3 w-3" />
+              </button>
+            </div>
+            
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Year"
+                value={rvInfo.year}
+                onChange={(e) => setRvInfo(prev => ({ ...prev, year: e.target.value }))}
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <button
+                onClick={() => {
+                  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                    recognition.continuous = false;
+                    recognition.interimResults = false;
+                    recognition.lang = 'en-US';
+                    recognition.onresult = (event) => {
+                      const transcript = event.results[0][0].transcript;
+                      setRvInfo(prev => ({ ...prev, year: transcript }));
+                    };
+                    recognition.start();
+                  }
+                }}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                title="Voice input"
+              >
+                <Mic className="h-3 w-3" />
+              </button>
+            </div>
+            
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Type"
+                value={rvInfo.type}
+                onChange={(e) => setRvInfo(prev => ({ ...prev, type: e.target.value }))}
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <button
+                onClick={() => {
+                  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                    recognition.continuous = false;
+                    recognition.interimResults = false;
+                    recognition.lang = 'en-US';
+                    recognition.onresult = (event) => {
+                      const transcript = event.results[0][0].transcript;
+                      setRvInfo(prev => ({ ...prev, type: transcript }));
+                    };
+                    recognition.start();
+                  }
+                }}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                title="Voice input"
+              >
+                <Mic className="h-3 w-3" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -608,134 +732,6 @@ If AC fails during travel:
                 Ask RV Repair Copilot
               </h2>
               
-              {/* RV Information Section */}
-              <div className="mb-4">
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                  <h3 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center space-x-2">
-                    <BookOpen className="h-4 w-4" />
-                    <span>RV Unit Information</span>
-                  </h3>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Brand"
-                        value={rvInfo.brand}
-                        onChange={(e) => setRvInfo(prev => ({ ...prev, brand: e.target.value }))}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                      <button
-                        onClick={() => {
-                          if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                            recognition.continuous = false;
-                            recognition.interimResults = false;
-                            recognition.lang = 'en-US';
-                            recognition.onresult = (event) => {
-                              const transcript = event.results[0][0].transcript;
-                              setRvInfo(prev => ({ ...prev, brand: transcript }));
-                            };
-                            recognition.start();
-                          }
-                        }}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                        title="Voice input"
-                      >
-                        <Mic className="h-3 w-3" />
-                      </button>
-                    </div>
-                    
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Model"
-                        value={rvInfo.model}
-                        onChange={(e) => setRvInfo(prev => ({ ...prev, model: e.target.value }))}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                      <button
-                        onClick={() => {
-                          if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                            recognition.continuous = false;
-                            recognition.interimResults = false;
-                            recognition.lang = 'en-US';
-                            recognition.onresult = (event) => {
-                              const transcript = event.results[0][0].transcript;
-                              setRvInfo(prev => ({ ...prev, model: transcript }));
-                            };
-                            recognition.start();
-                          }
-                        }}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                        title="Voice input"
-                      >
-                        <Mic className="h-3 w-3" />
-                      </button>
-                    </div>
-                    
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Year"
-                        value={rvInfo.year}
-                        onChange={(e) => setRvInfo(prev => ({ ...prev, year: e.target.value }))}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                      <button
-                        onClick={() => {
-                          if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                            recognition.continuous = false;
-                            recognition.interimResults = false;
-                            recognition.lang = 'en-US';
-                            recognition.onresult = (event) => {
-                              const transcript = event.results[0][0].transcript;
-                              setRvInfo(prev => ({ ...prev, year: transcript }));
-                            };
-                            recognition.start();
-                          }
-                        }}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                        title="Voice input"
-                      >
-                        <Mic className="h-3 w-3" />
-                      </button>
-                    </div>
-                    
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Type"
-                        value={rvInfo.type}
-                        onChange={(e) => setRvInfo(prev => ({ ...prev, type: e.target.value }))}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                      <button
-                        onClick={() => {
-                          if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                            recognition.continuous = false;
-                            recognition.interimResults = false;
-                            recognition.lang = 'en-US';
-                            recognition.onresult = (event) => {
-                              const transcript = event.results[0][0].transcript;
-                              setRvInfo(prev => ({ ...prev, type: transcript }));
-                            };
-                            recognition.start();
-                          }
-                        }}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                        title="Voice input"
-                      >
-                        <Mic className="h-3 w-3" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <div className="flex space-x-3">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />

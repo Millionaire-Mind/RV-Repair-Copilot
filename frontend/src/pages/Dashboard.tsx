@@ -432,7 +432,7 @@ If AC fails during travel:
             </span>
           </div>
           
-          {/* Right side - User Profile and Settings */}
+          {/* Right side - Dark Mode Toggle Only */}
           <div className="flex items-center space-x-3">
             <button
               onClick={toggleDarkMode}
@@ -440,14 +440,6 @@ If AC fails during travel:
               aria-label="Toggle dark mode"
             >
               {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </button>
-            
-            <button className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-              <Settings className="h-5 w-5" />
-            </button>
-            
-            <button className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-              <User className="h-5 w-5" />
             </button>
           </div>
         </div>

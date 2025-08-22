@@ -10,17 +10,249 @@ import {
   Settings,
   User,
   Sun,
-  Moon
+  Moon,
+  Send,
+  Copy,
+  Download,
+  Share2,
+  Save,
+  Clock,
+  Zap
 } from 'lucide-react';
+
+interface RVInfo {
+  brand: string;
+  model: string;
+  year: string;
+  type: string;
+}
+
+interface AIResponse {
+  answer: string;
+  sources: string[];
+  metadata: {
+    question: string;
+    searchResults: number;
+    processingTime: number;
+    modelUsed: string;
+    confidence: number;
+  };
+}
 
 const Dashboard: React.FC = () => {
   const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(false);
   const [isRightSidebarCollapsed, setIsRightSidebarCollapsed] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [rvInfo, setRvInfo] = useState<RVInfo>({
+    brand: '',
+    model: '',
+    year: '',
+    type: ''
+  });
+  const [isRvInfoExpanded, setIsRvInfoExpanded] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [currentResponse, setCurrentResponse] = useState<AIResponse | null>(null);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
     document.documentElement.classList.toggle('dark');
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+
+    setIsSearching(true);
+    setSearchHistory(prev => [searchQuery, ...prev.slice(0, 4)]); // Keep last 5 searches
+
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // Mock AI response based on query
+    const mockResponse: AIResponse = generateMockResponse(searchQuery, rvInfo);
+    setCurrentResponse(mockResponse);
+    setIsSearching(false);
+  };
+
+  const generateMockResponse = (query: string, rvInfo: RVInfo): AIResponse => {
+    const responses = {
+      'water pump': {
+        answer: `## Water Pump Troubleshooting Guide
+
+Based on your ${rvInfo.brand || 'RV'} ${rvInfo.model || 'model'}, here's how to resolve water pump issues:
+
+### **Step 1: Safety Check**
+- Ensure RV is parked on level ground
+- Turn off water pump at the control panel
+- Check for any visible water leaks
+
+### **Step 2: Common Issues & Solutions**
+
+**No Water Flow:**
+- Check if water tank is full
+- Verify pump fuse/breaker hasn't tripped
+- Inspect water lines for kinks or blockages
+
+**Pump Running But No Water:**
+- Check water tank level
+- Inspect inlet screen for debris
+- Verify all faucets are closed
+
+**Pump Won't Turn Off:**
+- Check pressure switch adjustment
+- Inspect for air leaks in system
+- Verify pump relay operation
+
+### **Step 3: Maintenance Tips**
+- Clean inlet screen monthly
+- Check pump pressure annually
+- Inspect hoses for wear every 6 months
+
+### **When to Seek Professional Help**
+If the pump still doesn't work after these steps, or if you notice electrical issues, contact a certified RV technician.`,
+        sources: [
+          `${rvInfo.brand || 'RV'} Service Manual - ${rvInfo.year || 'Current'} Edition`,
+          'RV Water Systems Guide',
+          'Pump Maintenance Best Practices'
+        ]
+      },
+      'battery': {
+        answer: `## Battery Maintenance & Troubleshooting
+
+For your ${rvInfo.brand || 'RV'} ${rvInfo.model || 'model'}, here's a comprehensive battery guide:
+
+### **Battery Health Check**
+- **Voltage Test**: Use multimeter to check voltage (should be 12.6V+ when fully charged)
+- **Visual Inspection**: Look for corrosion, cracks, or bulging
+- **Age Check**: RV batteries typically last 3-5 years
+
+### **Common Battery Problems**
+
+**Battery Won't Hold Charge:**
+- Check water levels (if applicable)
+- Clean corrosion from terminals
+- Test alternator output
+- Verify battery age
+
+**Slow Engine Crank:**
+- Check battery voltage
+- Inspect cable connections
+- Test starter motor
+- Verify ground connections
+
+### **Maintenance Schedule**
+- **Monthly**: Check water levels, clean terminals
+- **Quarterly**: Test battery voltage under load
+- **Annually**: Professional battery inspection
+
+### **Safety Reminders**
+- Always disconnect negative terminal first
+- Wear safety glasses when working with batteries
+- Keep area well-ventilated
+- Never smoke near batteries`,
+        sources: [
+          'RV Electrical Systems Manual',
+          'Battery Maintenance Guide',
+          'Safety Standards Handbook'
+        ]
+      },
+      'ac': {
+        answer: `## Air Conditioning Troubleshooting
+
+For your ${rvInfo.brand || 'RV'} ${rvInfo.model || 'model'} AC system:
+
+### **AC Won't Turn On**
+1. **Check Power Source**
+   - Verify shore power connection
+   - Check generator status
+   - Inspect circuit breakers
+
+2. **Thermostat Issues**
+   - Check battery in thermostat
+   - Verify temperature setting
+   - Clean thermostat contacts
+
+### **AC Running But Not Cooling**
+1. **Air Filter Check**
+   - Replace dirty air filter
+   - Clean evaporator coils
+   - Check for blockages
+
+2. **Refrigerant Issues**
+   - Listen for unusual sounds
+   - Check for ice buildup
+   - Verify proper airflow
+
+### **Performance Optimization**
+- Keep air filters clean
+- Ensure proper ventilation
+- Regular professional maintenance
+- Check ductwork for leaks
+
+### **Emergency Procedures**
+If AC fails during travel:
+- Use fans for air circulation
+- Park in shaded areas
+- Consider portable AC units
+- Monitor indoor temperature`,
+        sources: [
+          'RV HVAC Systems Guide',
+          'AC Maintenance Manual',
+          'Troubleshooting Best Practices'
+        ]
+      }
+    };
+
+    // Find best matching response
+    const queryLower = query.toLowerCase();
+    let bestMatch = responses['water pump']; // Default response
+
+    if (queryLower.includes('battery') || queryLower.includes('power') || queryLower.includes('electrical')) {
+      bestMatch = responses['battery'];
+    } else if (queryLower.includes('ac') || queryLower.includes('air') || queryLower.includes('cooling')) {
+      bestMatch = responses['ac'];
+    } else if (queryLower.includes('water') || queryLower.includes('pump') || queryLower.includes('plumbing')) {
+      bestMatch = responses['water pump'];
+    }
+
+    return {
+      answer: bestMatch.answer,
+      sources: bestMatch.sources,
+      metadata: {
+        question: query,
+        searchResults: 3,
+        processingTime: 1450,
+        modelUsed: 'GPT-4',
+        confidence: 0.89
+      }
+    };
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    // You could add a toast notification here
+  };
+
+  const popularQueries = [
+    'Water pump not working',
+    'AC troubleshooting',
+    'Battery maintenance',
+    'Propane system issues',
+    'Slide-out problems',
+    'Generator won\'t start'
+  ];
+
+  const handlePopularQuery = (query: string) => {
+    setSearchQuery(query);
+    // Auto-search for popular queries
+    setTimeout(() => handleSearch(), 100);
   };
 
   return (
@@ -115,6 +347,24 @@ const Dashboard: React.FC = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* Recent Searches */}
+                  {searchHistory.length > 0 && (
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                      <h3 className="font-medium text-gray-900 dark:text-white mb-2">Recent Searches</h3>
+                      <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                        {searchHistory.map((search, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handlePopularQuery(search)}
+                            className="w-full p-2 text-left bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                          >
+                            {search}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.aside>
@@ -139,42 +389,230 @@ const Dashboard: React.FC = () => {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Ask RV Repair Copilot
               </h2>
+              
+              {/* RV Information Section */}
+              <div className="mb-4">
+                <button
+                  type="button"
+                  onClick={() => setIsRvInfoExpanded(!isRvInfoExpanded)}
+                  className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  <span>RV Unit Information</span>
+                  <motion.div
+                    animate={{ rotate: isRvInfoExpanded ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </motion.div>
+                </button>
+
+                <AnimatePresence>
+                  {isRvInfoExpanded && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3"
+                    >
+                      <input
+                        type="text"
+                        placeholder="Brand"
+                        value={rvInfo.brand}
+                        onChange={(e) => setRvInfo(prev => ({ ...prev, brand: e.target.value }))}
+                        className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Model"
+                        value={rvInfo.model}
+                        onChange={(e) => setRvInfo(prev => ({ ...prev, model: e.target.value }))}
+                        className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Year"
+                        value={rvInfo.year}
+                        onChange={(e) => setRvInfo(prev => ({ ...prev, year: e.target.value }))}
+                        className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Type"
+                        value={rvInfo.type}
+                        onChange={(e) => setRvInfo(prev => ({ ...prev, type: e.target.value }))}
+                        className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               <div className="flex space-x-3">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={handleKeyPress}
                     placeholder="Describe your RV repair issue..."
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    disabled={isSearching}
                   />
                 </div>
-                <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
-                  Ask Copilot
+                <button 
+                  onClick={handleSearch}
+                  disabled={!searchQuery.trim() || isSearching}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                >
+                  {isSearching ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Searching...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4" />
+                      <span>Ask Copilot</span>
+                    </>
+                  )}
                 </button>
+              </div>
+
+              {/* Popular Queries */}
+              <div className="mt-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Popular queries:</p>
+                <div className="flex flex-wrap gap-2">
+                  {popularQueries.map((query, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handlePopularQuery(query)}
+                      className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                    >
+                      {query}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
           {/* AI Response Panel */}
           <div className="flex-1 px-6 pb-4 min-h-0">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 h-full">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  AI Response
-                </h2>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  Ready to help with your RV repair questions
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
-                <div className="text-center">
-                  <Search className="h-16 w-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-                  <p className="text-lg font-medium">Ask a question above to get started</p>
-                  <p className="text-sm mt-2">I can help with troubleshooting, repairs, and maintenance</p>
-                </div>
-              </div>
-            </div>
+            <AnimatePresence mode="wait">
+              {isSearching ? (
+                <motion.div
+                  key="loading"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 h-full"
+                >
+                  <div className="flex items-center justify-center h-64">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                      <p className="text-lg font-medium text-gray-900 dark:text-white">Searching for solutions...</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Analyzing your RV repair question</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : currentResponse ? (
+                <motion.div
+                  key="response"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 h-full overflow-y-auto"
+                >
+                  {/* Response Header */}
+                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                        AI Response
+                      </h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {currentResponse.metadata.question}
+                      </p>
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => copyToClipboard(currentResponse.answer)}
+                        className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                        title="Copy to clipboard"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </button>
+                      <button className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        <Save className="h-4 w-4" />
+                      </button>
+                      <button className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        <Download className="h-4 w-4" />
+                      </button>
+                      <button className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        <Share2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Response Content */}
+                  <div className="prose dark:prose-invert max-w-none mb-6">
+                    <div className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                      {currentResponse.answer}
+                    </div>
+                  </div>
+
+                  {/* Sources */}
+                  {currentResponse.sources && currentResponse.sources.length > 0 && (
+                    <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Sources:</h4>
+                      <div className="space-y-2">
+                        {currentResponse.sources.map((source, index) => (
+                          <div key={index} className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                            <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                            <span>{source}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Metadata */}
+                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center space-x-4">
+                      <span className="flex items-center space-x-1">
+                        <Clock className="h-3 w-3" />
+                        <span>{currentResponse.metadata.processingTime}ms</span>
+                      </span>
+                      <span className="flex items-center space-x-1">
+                        <Zap className="h-3 w-3" />
+                        <span>{currentResponse.metadata.modelUsed}</span>
+                      </span>
+                    </div>
+                    <span>Confidence: {(currentResponse.metadata.confidence * 100).toFixed(1)}%</span>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="empty"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 h-full"
+                >
+                  <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
+                    <div className="text-center">
+                      <Search className="h-16 w-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                      <p className="text-lg font-medium">Ask a question above to get started</p>
+                      <p className="text-sm mt-2">I can help with troubleshooting, repairs, and maintenance</p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </main>
 

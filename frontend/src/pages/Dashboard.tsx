@@ -1,105 +1,7 @@
 import React, { useState } from 'react';
-import {
-  SearchQueryBar,
-  AIResponsePanel,
-  ManualsSidebar,
-  RepairLogPanel,
-  QuickAccessSidebar,
-  UserProfileDropdown
-} from '../components/dashboard';
-
-interface RVInfo {
-  brand: string;
-  model: string;
-  year: string;
-  type: string;
-}
-
-interface AIResponse {
-  answer: string;
-  sources: string[];
-  metadata: {
-    question: string;
-    searchResults: number;
-    processingTime: number;
-    modelUsed: string;
-    confidence: number;
-  };
-}
 
 const Dashboard: React.FC = () => {
-  const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(false);
-  const [isRightSidebarCollapsed, setIsRightSidebarCollapsed] = useState(false);
-  const [isRepairLogExpanded, setIsRepairLogExpanded] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [currentResponse, setCurrentResponse] = useState<AIResponse | undefined>();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSearch = async (query: string, rvInfo: RVInfo) => {
-    setIsLoading(true);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Mock response - in real app this would come from the API
-    const mockResponse: AIResponse = {
-      answer: `Based on your ${rvInfo.brand} ${rvInfo.model} ${rvInfo.year} ${rvInfo.type}, here's how to resolve the issue:
-
-## Step-by-Step Solution
-
-1. **Safety First**: Ensure the RV is parked on level ground and the parking brake is engaged.
-
-2. **Initial Inspection**: 
-   - Check for any visible damage or loose connections
-   - Verify all switches are in the correct position
-   - Inspect fuses and circuit breakers
-
-3. **Troubleshooting Process**:
-   - Start with the most common causes
-   - Work systematically through each component
-   - Document your findings for future reference
-
-4. **Testing**: After making any adjustments, test the system thoroughly before considering the repair complete.
-
-## Common Causes for This Issue
-
-- Loose electrical connections
-- Blown fuses or tripped circuit breakers
-- Corroded battery terminals
-- Faulty switches or controls
-
-## When to Seek Professional Help
-
-If you're unable to resolve the issue after following these steps, or if you encounter any safety concerns, contact a certified RV technician immediately.
-
-## Prevention Tips
-
-- Regular maintenance and inspections
-- Keep connections clean and tight
-- Monitor battery health regularly
-- Follow manufacturer guidelines for care and maintenance`,
-      sources: [
-        `${rvInfo.brand} Service Manual - ${rvInfo.year} Edition`,
-        'RV Electrical Systems Guide',
-        'Troubleshooting Best Practices Manual'
-      ],
-      metadata: {
-        question: query,
-        searchResults: 3,
-        processingTime: 1850,
-        modelUsed: 'GPT-4',
-        confidence: 0.87
-      }
-    };
-
-    setCurrentResponse(mockResponse);
-    setIsLoading(false);
-  };
-
-  const handleSaveSolution = () => {
-    // In real app, this would save to user's saved solutions
-    console.log('Saving solution...');
-  };
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -120,57 +22,42 @@ If you're unable to resolve the issue after following these steps, or if you enc
             </span>
           </div>
           
-          <UserProfileDropdown 
-            isDarkMode={isDarkMode}
-            onToggleDarkMode={toggleDarkMode}
-          />
+          <button
+            onClick={toggleDarkMode}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+          >
+            {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+          </button>
         </div>
       </div>
 
-      {/* Main Dashboard Layout */}
-      <div className="flex h-[calc(100vh-88px)]">
-        {/* Left Sidebar - Manuals & Knowledge Base */}
-        <ManualsSidebar 
-          isCollapsed={isLeftSidebarCollapsed}
-          onToggleCollapse={() => setIsLeftSidebarCollapsed(!isLeftSidebarCollapsed)}
-        />
-
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* Top Section - Search & Query Bar */}
-          <div className="p-6 pb-4">
-            <SearchQueryBar 
-              onSearch={handleSearch}
-              isLoading={isLoading}
-            />
+      {/* Main Content */}
+      <div className="p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            Welcome to RV Repair Copilot Dashboard
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            This is a simplified version to test rendering. The full dashboard components will be loaded once we resolve any issues.
+          </p>
+          
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+              <h3 className="font-medium text-blue-900 dark:text-blue-100">Search & Query</h3>
+              <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">Ask about RV repair issues</p>
+            </div>
+            
+            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+              <h3 className="font-medium text-green-900 dark:text-green-100">AI Response</h3>
+              <p className="text-sm text-green-700 dark:text-green-300 mt-1">Get detailed repair guidance</p>
+            </div>
+            
+            <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+              <h3 className="font-medium text-purple-900 dark:text-purple-100">Manuals</h3>
+              <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">Access RV documentation</p>
+            </div>
           </div>
-
-          {/* Main Panel - AI Response */}
-          <div className="flex-1 px-6 pb-4 min-h-0">
-            <AIResponsePanel 
-              response={currentResponse}
-              isLoading={isLoading}
-              onSaveSolution={handleSaveSolution}
-            />
-          </div>
-
-          {/* Bottom Panel - Repair Log */}
-          <RepairLogPanel 
-            isExpanded={isRepairLogExpanded}
-            onToggleExpand={() => setIsRepairLogExpanded(!isRepairLogExpanded)}
-          />
         </div>
-
-        {/* Right Sidebar - Quick Access Widgets */}
-        <QuickAccessSidebar 
-          isCollapsed={isRightSidebarCollapsed}
-          onToggleCollapse={() => setIsRightSidebarCollapsed(!isRightSidebarCollapsed)}
-        />
-      </div>
-
-      {/* Responsive Mobile Overlay */}
-      <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40" style={{ display: 'none' }}>
-        {/* Mobile menu would go here */}
       </div>
     </div>
   );
